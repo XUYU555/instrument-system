@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:include="include :: header('仪器借用管理')" />
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>仪器借用管理</h5>
+          <div class="ibox-tools">
+            <a class="btn btn-primary btn-xs" th:href="@{/system/borrow/add}"><i class="fa fa-plus"></i> 新增申请</a>
+          </div>
+        </div>
+        <div class="ibox-content">
+          <div class="row">
+            <div class="col-sm-12 search-collapse">
+              <form id="formId">
+                <div class="select-list">
+                  <ul>
+                    <li>
+                      <label>仪器名称：</label>
+                      <input type="text" name="instrumentName" placeholder="请输入仪器名称"/>
+                    </li>
+                    <li>
+                      <label>借用人：</label>
+                      <input type="text" name="userName" placeholder="请输入借用人姓名"/>
+                    </li>
+                    <li>
+                      <label>状态：</label>
+                      <select name="status">
+                        <option value="">全部</option>
+                        <option value="0">申请中</option>
+                        <option value="1">已借出</option>
+                        <option value="2">已归还</option>
+                        <option value="3">已驳回</option>
+                        <option value="4">逾期</option>
+                      </select>
+                    </li>
+                    <li>
+                      <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                      <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                    </li>
+                  </ul>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <table id="bootstrap-table" data-mobile-responsive="true"></table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<th:block th:include="include :: footer" />
+<script>
+  var prefix = "/system/borrow";
+
+  $(function() {
+    var options = {
+      url: prefix + "/list",
+      createUrl: prefix + "/add",
+      updateUrl: prefix + "/edit/{id}",
+      removeUrl: prefix + "/remove",
+      modalName: "借用申请",
+      columns: [
+        {checkbox: true},
+        {field: 'borrowId', title: '借用ID', visible: false},
+        {field: 'instrumentName', title: '仪器名称'},
+        {field: 'userName', title: '借用人'},
+        {field: 'borrowTime', title: '借出时间'},
+        {field: 'planReturnTime', title: '计划归还时间'},
+        {field: 'returnTime', title: '实际归还时间'},
+        {
+          field: 'status',
+          title: '状态',
+          align: 'center',
+          formatter: function(value) {
+            if (value == '0') return '<span class="label label-warning">申请中</span>';
+            if (value == '1') return '<span class="label label-primary">已借出</span>';
+            if (value == '2') return '<span class="label label-success">已归还</span>';
+            if (value == '3') return '<span class="label label-danger">已驳回</span>';
+            if (value == '4') return '<span class="label label-danger">逾期</span>';
+            return value;
+          }
+        },
+        {field: 'auditUserName', title: '审核人'},
+        {field: 'createTime', title: '申请时间'},
+        {
+          title: '操作',
+          align: 'center',
+          formatter: function(value, row) {
+            var actions = [];
+            // 申请中可编辑、审核
+            if (row.status == '0') {
+              actions.push('<a class="btn btn-primary btn-xs" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.borrowId + '\')"><i class="fa fa-edit"></i> 编辑</a> ');
+              actions.push('<a class="btn btn-info btn-xs" href="javascript:void(0)" onclick="$.modal.open(\'借用审核\', \'' + prefix + '/audit/' + row.borrowId + '\')"><i class="fa fa-check"></i> 审核</a> ');
+            }
+            // 已借出可归还
+            if (row.status == '1') {
+              actions.push('<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="returnBorrow(\'' + row.borrowId + '\')"><i class="fa fa-reply"></i> 归还</a> ');
+            }
+            actions.push('<a class="btn btn-danger btn-xs" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.borrowId + '\')"><i class="fa fa-trash"></i> 删除</a>');
+            return actions.join('');
+          }
+        }
+      ]
+    };
+    $.table.init(options);
+  });
+
+  // 归还操作
+  function returnBorrow(borrowId) {
+    $.modal.confirm("确认要归还该仪器吗？", function() {
+      $.ajax({
+        type: "POST",
+        url: prefix + "/return",
+        data: { "borrowId": borrowId },
+        success: function(result) {
+          $.operate.successCallback(result);
+        }
+      });
+    });
+  }
+</script>
+</body>
+</html>

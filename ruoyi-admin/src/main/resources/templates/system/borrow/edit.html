@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:include="include :: header('编辑借用申请')" />
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+  <form class="form-horizontal m-t" id="borrowForm" th:action="@{/system/borrow/edit}" method="post">
+    <input name="borrowId" th:field="${borrow.borrowId}" type="hidden">
+    <div class="form-group">
+      <label class="col-sm-2 control-label">仪器ID：</label>
+      <div class="col-sm-10">
+        <input name="instrumentId" th:field="${borrow.instrumentId}" class="form-control" type="text" required>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label">计划归还时间：</label>
+      <div class="col-sm-10">
+        <div class="input-group date">
+          <input name="planReturnTime" th:field="${borrow.planReturnTime}" class="form-control" type="text" required readonly>
+          <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label">借用备注：</label>
+      <div class="col-sm-10">
+        <textarea name="remark" th:field="${borrow.remark}" class="form-control" rows="3"></textarea>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-4 col-sm-offset-2">
+        <button type="submit" class="btn btn-primary">保存修改</button>
+        <!-- 【修复】取消按钮使用 history.back() -->
+        <button type="button" class="btn btn-white" onclick="javascript:history.back()">取消</button>
+      </div>
+    </div>
+  </form>
+</div>
+<th:block th:include="include :: footer" />
+<script>
+  $(function() {
+    $('.input-group.date').datetimepicker({
+      format: 'yyyy-mm-dd hh:ii:ss',
+      minView: 0,
+      language: 'zh-CN',
+      autoclose: true
+    });
+    $("#borrowForm").validate({});
+  });
+</script>
+</body>
+</html>

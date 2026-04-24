@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:include="include :: header('编辑维修申报')" />
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+  <form class="form-horizontal m-t" id="repairForm" th:action="@{/system/repair/edit}" method="post">
+    <input name="repairId" th:field="${repair.repairId}" type="hidden">
+    <div class="form-group">
+      <label class="col-sm-2 control-label">仪器ID：</label>
+      <div class="col-sm-10">
+        <input name="instrumentId" th:field="${repair.instrumentId}" class="form-control" type="text" required>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label">故障原因：</label>
+      <div class="col-sm-10">
+        <textarea name="repairReason" th:field="${repair.repairReason}" class="form-control" rows="3" required></textarea>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label">备注：</label>
+      <div class="col-sm-10">
+        <textarea name="remark" th:field="${repair.remark}" class="form-control" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-4 col-sm-offset-2">
+        <button type="submit" class="btn btn-primary">保存修改</button>
+        <button type="button" class="btn btn-white" onclick="$.modal.close()">取消</button>
+      </div>
+    </div>
+  </form>
+</div>
+<th:block th:include="include :: footer" />
+<script>
+  $("#repairForm").validate({});
+</script>
+</body>
+</html>

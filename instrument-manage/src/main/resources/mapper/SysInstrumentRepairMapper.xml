@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cui.mapper.SysInstrumentRepairMapper">
+
+    <resultMap type="SysInstrumentRepair" id="RepairResult">
+        <result property="repairId" column="repair_id"/>
+        <result property="instrumentId" column="instrument_id"/>
+        <result property="repairReason" column="repair_reason"/>
+        <result property="repairTime" column="repair_time"/>
+        <result property="repairResult" column="repair_result"/>
+        <result property="status" column="status"/>
+        <result property="cost" column="cost"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="instrumentName" column="instrument_name"/>
+    </resultMap>
+
+    <sql id="selectRepairVo">
+        select r.*, i.instrument_name, u.user_name as create_user_name
+        from sys_instrument_repair r
+                 left join sys_instrument i on r.instrument_id = i.instrument_id
+                 left join sys_user u on r.create_by = u.login_name
+    </sql>
+
+    <select id="selectRepairList" parameterType="SysInstrumentRepair" resultMap="RepairResult">
+        <include refid="selectRepairVo"/>
+        <where>
+            <if test="instrumentName != null and instrumentName != ''">and i.instrument_name like concat('%', #{instrumentName}, '%')</if>
+            <if test="status != null and status != ''">and r.status = #{status}</if>
+            <if test="instrumentId != null">and r.instrument_id = #{instrumentId}</if>
+        </where>
+        order by r.create_time desc
+    </select>
+
+    <select id="selectRepairById" parameterType="Long" resultMap="RepairResult">
+        <include refid="selectRepairVo"/> where r.repair_id = #{repairId}
+    </select>
+
+    <insert id="insertRepair" parameterType="SysInstrumentRepair" useGeneratedKeys="true" keyProperty="repairId">
+        insert into sys_instrument_repair
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="instrumentId != null">instrument_id,</if>
+            <if test="repairReason != null">repair_reason,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="instrumentId != null">#{instrumentId},</if>
+            <if test="repairReason != null">#{repairReason},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateRepair" parameterType="SysInstrumentRepair">
+        update sys_instrument_repair
+        <set>
+            <if test="instrumentId != null">instrument_id = #{instrumentId},</if>
+            <if test="repairReason != null">repair_reason = #{repairReason},</if>
+            <if test="repairTime != null">repair_time = #{repairTime},</if>
+            <if test="repairResult != null">repair_result = #{repairResult},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="cost != null">cost = #{cost},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </set>
+        where repair_id = #{repairId}
+    </update>
+
+    <delete id="deleteRepairById" parameterType="Long">
+        delete from sys_instrument_repair where repair_id = #{repairId}
+    </delete>
+
+    <delete id="deleteRepairByIds" parameterType="Long">
+        delete from sys_instrument_repair where repair_id in
+        <foreach collection="array" item="repairId" open="(" separator="," close=")">
+            #{repairId}
+        </foreach>
+    </delete>
+</mapper>

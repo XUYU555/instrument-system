@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('仪器维修管理')" />
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>仪器维修管理</h5>
+                    <div class="ibox-tools">
+                        <a class="btn btn-primary btn-xs" th:href="@{/system/repair/add}"><i class="fa fa-plus"></i> 新增申报</a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-sm-12 search-collapse">
+                            <form id="formId">
+                                <div class="select-list">
+                                    <ul>
+                                        <li>
+                                            <label>仪器名称：</label>
+                                            <input type="text" name="instrumentName" placeholder="请输入仪器名称"/>
+                                        </li>
+                                        <li>
+                                            <label>状态：</label>
+                                            <select name="status">
+                                                <option value="">全部</option>
+                                                <option value="0">待维修</option>
+                                                <option value="1">维修中</option>
+                                                <option value="2">已修复</option>
+                                                <option value="3">无法修复</option>
+                                            </select>
+                                        </li>
+                                        <li>
+                                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <table id="bootstrap-table" data-mobile-responsive="true"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer" />
+<script>
+    var prefix = "/system/repair";
+
+    $(function() {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            modalName: "维修申报",
+            columns: [
+                {checkbox: true},
+                {field: 'repairId', title: '维修ID', visible: false},
+                {field: 'instrumentName', title: '仪器名称'},
+                {field: 'repairReason', title: '故障原因'},
+                {
+                    field: 'status',
+                    title: '状态',
+                    align: 'center',
+                    formatter: function(value) {
+                        if (value == '0') return '<span class="label label-warning">待维修</span>';
+                        if (value == '1') return '<span class="label label-primary">维修中</span>';
+                        if (value == '2') return '<span class="label label-success">已修复</span>';
+                        if (value == '3') return '<span class="label label-danger">无法修复</span>';
+                        return value;
+                    }
+                },
+                {field: 'cost', title: '维修费用'},
+                {field: 'createUserName', title: '申报人'},
+                {field: 'createTime', title: '申报时间'},
+                {field: 'repairTime', title: '维修完成时间'},
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row) {
+                        var actions = [];
+                        // 待维修可编辑、处理
+                        if (row.status == '0') {
+                            actions.push('<a class="btn btn-primary btn-xs" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.repairId + '\')"><i class="fa fa-edit"></i> 编辑</a> ');
+                            actions.push('<a class="btn btn-info btn-xs" href="javascript:void(0)" onclick="$.modal.open(\'维修处理\', \'' + prefix + '/handle/' + row.repairId + '\')"><i class="fa fa-wrench"></i> 处理</a> ');
+                        }
+                        // 维修中可处理
+                        if (row.status == '1') {
+                            actions.push('<a class="btn btn-info btn-xs" href="javascript:void(0)" onclick="$.modal.open(\'维修处理\', \'' + prefix + '/handle/' + row.repairId + '\')"><i class="fa fa-wrench"></i> 处理</a> ');
+                        }
+                        actions.push('<a class="btn btn-danger btn-xs" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.repairId + '\')"><i class="fa fa-trash"></i> 删除</a>');
+                        return actions.join('');
+                    }
+                }
+            ]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

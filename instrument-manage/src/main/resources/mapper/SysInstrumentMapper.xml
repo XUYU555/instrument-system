@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cui.mapper.SysInstrumentMapper">
+
+    <resultMap type="SysInstrument" id="SysInstrumentResult">
+        <result property="instrumentId" column="instrument_id"/>
+        <result property="instrumentName" column="instrument_name"/>
+        <result property="instrumentCode" column="instrument_code"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="status" column="status"/>
+        <result property="purchaseTime" column="purchase_time"/>
+        <result property="location" column="location"/>
+        <result property="specs" column="specs"/>
+        <result property="manufacturer" column="manufacturer"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <result property="deptName" column="dept_name"/>
+    </resultMap>
+
+    <sql id="selectInstrumentVo">
+        select i.*, d.dept_name from sys_instrument i
+                                         left join sys_dept d on i.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectInstrumentList" parameterType="SysInstrument" resultMap="SysInstrumentResult">
+        <include refid="selectInstrumentVo"/>
+        <where>
+            <if test="instrumentName != null and instrumentName != ''">and i.instrument_name like concat('%', #{instrumentName}, '%')</if>
+            <if test="instrumentCode != null and instrumentCode != ''">and i.instrument_code = #{instrumentCode}</if>
+            <if test="status != null and status != ''">and i.status = #{status}</if>
+            <if test="deptId != null">and i.dept_id = #{deptId}</if>
+        </where>
+    </select>
+
+    <select id="selectInstrumentById" parameterType="Long" resultMap="SysInstrumentResult">
+        <include refid="selectInstrumentVo"/> where i.instrument_id = #{instrumentId}
+    </select>
+
+    <insert id="insertInstrument" parameterType="SysInstrument">
+        insert into sys_instrument
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="instrumentName != null">instrument_name,</if>
+            <if test="instrumentCode != null">instrument_code,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="status != null">status,</if>
+            <if test="purchaseTime != null">purchase_time,</if>
+            <if test="location != null">location,</if>
+            <if test="specs != null">specs,</if>
+            <if test="manufacturer != null">manufacturer,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="instrumentName != null">#{instrumentName},</if>
+            <if test="instrumentCode != null">#{instrumentCode},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="status != null">#{status},</if>
+            <if test="purchaseTime != null">#{purchaseTime},</if>
+            <if test="location != null">#{location},</if>
+            <if test="specs != null">#{specs},</if>
+            <if test="manufacturer != null">#{manufacturer},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateInstrument" parameterType="SysInstrument">
+        update sys_instrument
+        <set>
+            <if test="instrumentName != null">instrument_name = #{instrumentName},</if>
+            <if test="instrumentCode != null">instrument_code = #{instrumentCode},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="purchaseTime != null">purchase_time = #{purchaseTime},</if>
+            <if test="location != null">location = #{location},</if>
+            <if test="specs != null">specs = #{specs},</if>
+            <if test="manufacturer != null">manufacturer = #{manufacturer},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </set>
+        where instrument_id = #{instrumentId}
+    </update>
+
+    <delete id="deleteInstrumentById" parameterType="Long">
+        delete from sys_instrument where instrument_id = #{instrumentId}
+    </delete>
+</mapper>
