@@ -10,6 +10,7 @@ import com.ruoyi.common.enums.BusinessType;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,7 +43,9 @@ public class SysInstrumentBorrowController extends BaseController {
 
     @RequiresPermissions("system:borrow:add")
     @GetMapping("/add")
-    public String add() {
+    public String add(@RequestParam(value = "instrumentId", required = false) Long instrumentId, Model model) {
+        // 把仪器ID传到前端页面
+        model.addAttribute("instrumentId", instrumentId);
         return prefix + "/add";
     }
 
@@ -51,7 +54,8 @@ public class SysInstrumentBorrowController extends BaseController {
     @PostMapping("/add")
     @ResponseBody
     public AjaxResult addSave(SysInstrumentBorrow borrow) {
-        return toAjax(borrowService.insertBorrow(borrow));
+        int i = borrowService.insertBorrow(borrow);
+        return i!=0? success():error("仪器已被借出");
     }
 
     @RequiresPermissions("system:borrow:edit")

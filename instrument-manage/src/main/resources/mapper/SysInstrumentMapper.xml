@@ -88,4 +88,29 @@
     <delete id="deleteInstrumentById" parameterType="Long">
         delete from sys_instrument where instrument_id = #{instrumentId}
     </delete>
+
+    <!-- 查询所有仪器 -->
+    <select id="selectAll" resultMap="SysInstrumentResult">
+        select * from sys_instrument
+    </select>
+
+    <!-- 统计仪器总数 -->
+    <select id="countAll" resultType="java.lang.Integer">
+        select count(*) from sys_instrument
+    </select>
+
+    <!-- 根据状态列表统计数量 -->
+    <select id="countByStatusIn" resultType="java.lang.Integer">
+        select count(*) from sys_instrument
+        where status in
+        <foreach collection="statusList" item="status" open="(" separator="," close=")">
+            #{status}
+        </foreach>
+    </select>
+
+    <!-- 根据状态查询仪器 -->
+    <select id="selectByStatus" resultMap="SysInstrumentResult">
+        select * from sys_instrument where status = #{status}
+    </select>
+
 </mapper>

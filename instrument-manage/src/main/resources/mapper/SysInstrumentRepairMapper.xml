@@ -84,4 +84,36 @@
             #{repairId}
         </foreach>
     </delete>
+
+    <!-- 根据仪器ID列表统计维修次数 -->
+    <select id="countByInstrumentIds" resultType="java.lang.Integer">
+        select count(*) from sys_instrument_repair
+        where instrument_id in
+        <foreach collection="instrumentIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 根据状态统计数量 -->
+    <select id="countByStatus" resultType="java.lang.Integer">
+        select count(*) from sys_instrument_repair
+        where status = #{status}
+    </select>
+
+    <!-- 查询维修超时记录 -->
+    <select id="selectTimeoutRepairList" resultMap="RepairResult">
+        <include refid="selectRepairVo"/>
+        where r.status in ('0', '1')
+        and r.create_time &lt;= #{timeoutDate}
+        <if test="instrumentId != null">
+            and r.instrument_id = #{instrumentId}
+        </if>
+    </select>
+
+    <!-- 查询维修费用超限记录 -->
+    <select id="selectCostOverRepairList" resultType="com.cui.domain.SysInstrumentRepair">
+        select * from sys_instrument_repair
+        where cost > #{threshold}
+        <if test="instrumentId != null">and instrument_id = #{instrumentId}</if>
+    </select>
 </mapper>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cui.mapper.SysInstrumentWarnRuleMapper">
+
+    <!-- 新增预警规则 -->
+    <insert id="insertWarnRule">
+        insert into sys_instrument_warn_rule
+            (instrument_id, warn_type, threshold, status, notify_type, create_time)
+        values
+            (#{instrumentId}, #{warnType}, #{threshold}, #{status}, #{notifyType}, #{createTime})
+    </insert>
+
+    <!-- 查询启用的预警规则 -->
+    <select id="selectEnabledRuleList" resultType="com.cui.domain.SysInstrumentWarnRule">
+        select * from sys_instrument_warn_rule
+        <where>
+            status = '1'
+            <if test="instrumentId != null">and instrument_id = #{instrumentId}</if>
+            <if test="warnType != null">and warn_type = #{warnType}</if>
+        </where>
+    </select>
+
+</mapper>

@@ -7,6 +7,7 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.ShiroUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class SysInstrumentRepairServiceImpl implements ISysInstrumentRepairServi
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int insertRepair(SysInstrumentRepair repair) {
         repair.setCreateBy(ShiroUtils.getLoginName());
         repair.setCreateTime(DateUtils.getNowDate());
@@ -35,6 +37,7 @@ public class SysInstrumentRepairServiceImpl implements ISysInstrumentRepairServi
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateRepair(SysInstrumentRepair repair) {
         repair.setUpdateBy(ShiroUtils.getLoginName());
         repair.setUpdateTime(DateUtils.getNowDate());
@@ -42,16 +45,19 @@ public class SysInstrumentRepairServiceImpl implements ISysInstrumentRepairServi
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteRepairById(Long repairId) {
         return repairMapper.deleteRepairById(repairId);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteRepairByIds(Long[] repairIds) {
         return repairMapper.deleteRepairByIds(repairIds);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int handleRepair(SysInstrumentRepair repair) {
         repair.setUpdateBy(ShiroUtils.getLoginName());
         repair.setUpdateTime(DateUtils.getNowDate());

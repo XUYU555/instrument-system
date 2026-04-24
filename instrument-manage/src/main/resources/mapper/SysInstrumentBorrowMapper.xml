@@ -30,6 +30,10 @@
                  left join sys_user u on b.audit_user_id = u.user_id
     </sql>
 
+    <select id="instrumentBorrowed" resultMap="BorrowResult">
+        select * from sys_instrument_borrow where instrument_id=#{instrumentId} and status=1
+    </select>
+
     <select id="selectBorrowList" parameterType="SysInstrumentBorrow" resultMap="BorrowResult">
         <include refid="selectBorrowVo"/>
         <where>
@@ -98,8 +102,68 @@
         </foreach>
     </delete>
 
+
+    <!-- 根据仪器ID列表统计借用次数 -->
+    <select id="countByInstrumentIds" resultType="java.lang.Integer">
+        select count(*) from sys_instrument_borrow
+        where instrument_id in
+        <foreach collection="instrumentIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 根据时间范围统计借用次数 -->
+    <select id="countByBorrowTimeBetween" resultType="java.lang.Integer">
+        select count(*) from sys_instrument_borrow
+        where borrow_time between #{start} and #{end}
+    </select>
+
+    <!-- 根据状态统计数量 -->
+    <select id="countByStatus" resultType="java.lang.Integer">
+        select count(*) from sys_instrument_borrow
+        where status = #{status}
+    </select>
+
+    <!-- 查询用户最近1条借用记录 -->
+    <select id="selectLatestByUserId" resultMap="BorrowResult">
+        select * from sys_instrument_borrow
+        where user_id = #{userId}
+        order by borrow_time desc
+            limit 1
+    </select>
+
+    <!-- 统计仪器指定时间后的借用次数 -->
+    <select id="countByInstrumentIdAndTime" resultType="java.lang.Integer">
+        select count(*) from sys_instrument_borrow
+        where instrument_id = #{instrumentId}
+          and borrow_time >= #{startTime}
+    </select>
+
+    <!-- 查询仪器最近1条借用记录 -->
+    <select id="selectLatestBorrowByInstrumentId" resultMap="BorrowResult">
+        select * from sys_instrument_borrow
+        where instrument_id = #{instrumentId}
+          and status in ('0', '1')
+        order by plan_return_time desc
+            limit 1
+    </select>
+
+    <!-- 放到 SysInstrumentBorrowMapper.xml 中 -->
+
+    <!-- 查询超期借用记录 -->
     <select id="selectOverdueBorrowList" resultMap="BorrowResult">
         <include refid="selectBorrowVo"/>
-        where b.status = '1' and b.plan_return_time &lt; now()
+        where b.status = '1'
+        and b.plan_return_time &lt; now()
+        <if test="instrumentId != null">
+            and b.instrument_id = #{instrumentId}
+        </if>
+    </select>
+
+    <!-- 统计仪器月使用次数 -->
+    <select id="countInstrumentMonthUse" resultType="java.lang.Integer">
+        select count(*) from sys_instrument_borrow
+        where instrument_id = #{instrumentId}
+          and borrow_time >= #{monthStart}
     </select>
 </mapper>

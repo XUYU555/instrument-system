@@ -98,6 +98,10 @@
                         var actions = [];
                         actions.push('<a class="btn btn-primary btn-xs" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.instrumentId + '\')"><i class="fa fa-edit"></i> 修改</a> ');
                         actions.push('<a class="btn btn-danger btn-xs" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.instrumentId + '\')"><i class="fa fa-trash"></i> 删除</a>');
+                        // 仅正常状态显示借用按钮
+                        if (row.status === '0') {
+                            actions.push(' <a class="btn btn-success btn-xs" href="/system/borrow/add?instrumentId=' + row.instrumentId + '"><i class="fa fa-book"></i> 借用</a>');
+                        }
                         return actions.join('');
                     }
                 }

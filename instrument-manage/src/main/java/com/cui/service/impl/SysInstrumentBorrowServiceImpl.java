@@ -7,6 +7,7 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.ShiroUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,16 +28,21 @@ public class SysInstrumentBorrowServiceImpl implements ISysInstrumentBorrowServi
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int insertBorrow(SysInstrumentBorrow borrow) {
         borrow.setCreateBy(ShiroUtils.getLoginName());
         borrow.setCreateTime(DateUtils.getNowDate());
         borrow.setUserId(ShiroUtils.getUserId());
         borrow.setUserName(ShiroUtils.getSysUser().getUserName());
         borrow.setStatus("0"); // 默认申请中
+        if (borrowMapper.instrumentBorrowed(borrow.getInstrumentId()) != null) {
+            return 0;
+        }
         return borrowMapper.insertBorrow(borrow);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateBorrow(SysInstrumentBorrow borrow) {
         borrow.setUpdateBy(ShiroUtils.getLoginName());
         borrow.setUpdateTime(DateUtils.getNowDate());
@@ -44,16 +50,19 @@ public class SysInstrumentBorrowServiceImpl implements ISysInstrumentBorrowServi
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteBorrowById(Long borrowId) {
         return borrowMapper.deleteBorrowById(borrowId);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteBorrowByIds(Long[] borrowIds) {
         return borrowMapper.deleteBorrowByIds(borrowIds);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int auditBorrow(SysInstrumentBorrow borrow) {
         borrow.setAuditUserId(ShiroUtils.getUserId());
         borrow.setAuditTime(DateUtils.getNowDate());
@@ -66,6 +75,7 @@ public class SysInstrumentBorrowServiceImpl implements ISysInstrumentBorrowServi
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int returnBorrow(Long borrowId) {
         SysInstrumentBorrow borrow = new SysInstrumentBorrow();
         borrow.setBorrowId(borrowId);

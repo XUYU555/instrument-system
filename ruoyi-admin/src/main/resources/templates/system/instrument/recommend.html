@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>仪器预约智能推荐</title>
+    <th:block th:include="include :: header('仪器预约智能推荐')"></th:block>
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>智能推荐仪器列表</h5>
+                    <div class="ibox-tools">
+                        <button class="btn btn-primary btn-sm" onclick="refreshRecommend()">刷新推荐</button>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead>
+                        <tr>
+                            <th>仪器名称</th>
+                            <th>仪器编号</th>
+                            <th>所属院系</th>
+                            <th>存放位置</th>
+                            <th>推荐匹配度</th>
+                            <th>月使用频次</th>
+                            <th>预计空闲时长</th>
+                            <th>推荐理由</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="recommendTable">
+                        <tr th:each="item : ${recommendList}">
+                            <td th:text="${item.instrumentName}"></td>
+                            <td th:text="${item.instrumentCode}"></td>
+                            <td th:text="${item.deptName}"></td>
+                            <td th:text="${item.location}"></td>
+                            <td th:text="${item.matchRate} + '%'"></td>
+                            <td th:text="${item.useFrequency} + '次/月'"></td>
+                            <td th:text="${item.freeHour} + '小时'"></td>
+                            <td th:text="${item.recommendReason}"></td>
+                            <td>
+                                <a class="btn btn-xs btn-success" th:href="@{/system/borrow/add(instrumentId=${item.instrumentId})}">预约</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer"></th:block>
+<script>
+    // 刷新推荐列表
+    function refreshRecommend() {
+        $.get("/instrument/recommend/refresh", {count:10}, function(res) {
+            if (res.code === 200) {
+                var html = '';
+                $.each(res.data, function(i, item) {
+                    html += '<tr>' +
+                        '<td>' + item.instrumentName + '</td>' +
+                        '<td>' + item.instrumentCode + '</td>' +
+                        '<td>' + item.deptName + '</td>' +
+                        '<td>' + item.location + '</td>' +
+                        '<td>' + item.matchRate + '%</td>' +
+                        '<td>' + item.useFrequency + '次/月</td>' +
+                        '<td>' + item.freeHour + '小时</td>' +
+                        '<td>' + item.recommendReason + '</td>' +
+                        '<td><a class="btn btn-xs btn-success" href="/system/borrow/add?instrumentId=' + item.instrumentId + '">预约</a></td>' +
+                        '</tr>';
+                });
+                $("#recommendTable").html(html);
+                layer.msg("推荐列表已刷新");
+            }
+        });
+    }
+</script>
+</body>
+</html>

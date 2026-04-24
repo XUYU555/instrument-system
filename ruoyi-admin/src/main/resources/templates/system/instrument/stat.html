@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>仪器使用统计可视化</title>
+    <th:block th:include="include :: header('仪器使用统计可视化')"></th:block>
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <!-- 仪表盘核心指标 -->
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">总仪器数</div>
+                <div class="ibox-content"><h1 th:text="${dashboard.totalCount}">0</h1></div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">在用仪器数</div>
+                <div class="ibox-content"><h1 th:text="${dashboard.inUseCount}">0</h1></div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">故障仪器数</div>
+                <div class="ibox-content"><h1 th:text="${dashboard.faultCount}">0</h1></div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">超期借用数</div>
+                <div class="ibox-content"><h1 th:text="${dashboard.overdueCount}">0</h1></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 按院系统计柱状图 -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">各院系仪器使用统计</div>
+                <div class="ibox-content">
+                    <div id="deptChart" style="width:100%;height:400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 月度借用趋势折线图 + 类型可用率饼图 -->
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">月度借用趋势</div>
+                <div class="ibox-content">
+                    <div id="monthChart" style="width:100%;height:400px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">仪器类型可用率</div>
+                <div class="ibox-content">
+                    <div id="typeChart" style="width:100%;height:400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer"></th:block>
+<script>
+    // 初始化ECharts实例
+    var deptChart = echarts.init(document.getElementById('deptChart'));
+    var monthChart = echarts.init(document.getElementById('monthChart'));
+    var typeChart = echarts.init(document.getElementById('typeChart'));
+
+    // 1. 院系统计（修复：若依code=0 + 空名称兜底）
+    $.get("/instrument/stat/byDept", function(res) {
+        if (res.code === 0 && res.data && res.data.length > 0) {
+            var deptNames = res.data.map(item => item.dimensionName || '未知院系');
+            var borrowCounts = res.data.map(item => item.borrowCount || 0);
+            var repairCounts = res.data.map(item => item.repairCount || 0);
+
+            deptChart.setOption({
+                title: { text: '院系借用/维修次数对比' },
+                tooltip: { trigger: 'axis' },
+                legend: { data: ['借用次数', '维修次数'] },
+                xAxis: { type: 'category', data: deptNames },
+                yAxis: { type: 'value' },
+                series: [
+                    { name: '借用次数', type: 'bar', data: borrowCounts },
+                    { name: '维修次数', type: 'bar', data: repairCounts }
+                ]
+            });
+        }
+    });
+
+    // 2. 月度统计（修复：若依code=0）
+    $.get("/instrument/stat/byMonth", {year: new Date().getFullYear()}, function(res) {
+        if (res.code === 0 && res.data && res.data.length > 0) {
+            var months = res.data.map(item => item.dimensionName);
+            var borrowCounts = res.data.map(item => item.borrowCount || 0);
+
+            monthChart.setOption({
+                title: { text: '年度月度借用次数趋势' },
+                tooltip: { trigger: 'axis' },
+                xAxis: { type: 'category', data: months },
+                yAxis: { type: 'value' },
+                series: [{ name: '借用次数', type: 'line', data: borrowCounts, smooth: true }]
+            });
+        }
+    });
+
+    // 3. 类型统计（修复：若依code=0）
+    $.get("/instrument/stat/byType", function(res) {
+        if (res.code === 0 && res.data && res.data.length > 0) {
+            typeChart.setOption({
+                title: { text: '仪器类型可用率分布' },
+                tooltip: { trigger: 'item' },
+                series: [{
+                    name: '可用率',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    data: res.data.map(item => ({
+                        name: item.dimensionName,
+                        value: item.availabilityRatio
+                    })),
+                    label: { formatter: '{b}: {c}%' }
+                }]
+            });
+        }
+    });
+
+    // 自适应窗口
+    window.addEventListener('resize', function() {
+        deptChart.resize();
+        monthChart.resize();
+        typeChart.resize();
+    });
+</script>
+</body>
+</html>

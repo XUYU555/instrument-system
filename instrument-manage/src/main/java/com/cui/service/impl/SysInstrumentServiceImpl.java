@@ -6,6 +6,7 @@ import com.cui.service.ISysInstrumentService;
 import com.ruoyi.common.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,18 +27,21 @@ public class SysInstrumentServiceImpl implements ISysInstrumentService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int insertInstrument(SysInstrument instrument) {
         instrument.setCreateTime(DateUtils.getNowDate());
         return instrumentMapper.insertInstrument(instrument);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateInstrument(SysInstrument instrument) {
         instrument.setUpdateTime(DateUtils.getNowDate());
         return instrumentMapper.updateInstrument(instrument);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteInstrumentById(Long instrumentId) {
         return instrumentMapper.deleteInstrumentById(instrumentId);
     }

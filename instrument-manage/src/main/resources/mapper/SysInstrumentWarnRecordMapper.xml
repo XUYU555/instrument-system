@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cui.mapper.SysInstrumentWarnRecordMapper">
+
+    <!-- 查询预警记录列表 -->
+    <select id="selectWarnRecordList" resultType="com.cui.domain.SysInstrumentWarnRecord">
+        select * from sys_instrument_warn_record
+        <where>
+            <if test="ruleId != null">and rule_id = #{ruleId}</if>
+            <if test="instrumentId != null">and instrument_id = #{instrumentId}</if>
+            <if test="handleStatus != null">and handle_status = #{handleStatus}</if>
+        </where>
+    </select>
+
+    <!-- 根据ID查询预警记录 -->
+    <select id="selectWarnRecordById" resultType="com.cui.domain.SysInstrumentWarnRecord">
+        select * from sys_instrument_warn_record where id = #{recordId}
+    </select>
+
+    <!-- 更新预警记录 -->
+    <update id="updateWarnRecord">
+        update sys_instrument_warn_record
+        <set>
+            <if test="handleStatus != null">handle_status = #{handleStatus},</if>
+            <if test="handleUserId != null">handle_user_id = #{handleUserId},</if>
+            <if test="handleTime != null">handle_time = #{handleTime},</if>
+            <if test="handleRemark != null">handle_remark = #{handleRemark}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 新增预警记录 -->
+    <insert id="insertWarnRecord">
+        insert into sys_instrument_warn_record
+        (rule_id, instrument_id, business_id, warn_type, warn_content, trigger_value, handle_status, create_time)
+        values
+            (#{ruleId}, #{instrumentId}, #{businessId}, #{warnType}, #{warnContent}, #{triggerValue}, #{handleStatus}, #{createTime})
+    </insert>
+
+    <!-- 判断是否存在未处理的重复预警 -->
+    <select id="existsUnHandleWarn" resultType="java.lang.Integer">
+        select count(*) from sys_instrument_warn_record
+        where rule_id = #{ruleId}
+          and business_id = #{businessId}
+          and handle_status = '0'
+    </select>
+
+</mapper>
