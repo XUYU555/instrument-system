@@ -6,7 +6,8 @@
 </head>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
-  <form class="form-horizontal m-t" id="instrumentForm" th:action="@{/system/instrument/add}" method="post">
+  <!-- 🔥 修复：移除同步提交属性 th:action、method -->
+  <form class="form-horizontal m-t" id="instrumentForm">
     <div class="form-group">
       <label class="col-sm-2 control-label">仪器名称：</label>
       <div class="col-sm-10">
@@ -77,9 +78,9 @@
     </div>
     <div class="form-group">
       <div class="col-sm-4 col-sm-offset-2">
-        <button type="submit" class="btn btn-primary">保存</button>
-        <!-- 【修复】取消按钮：使用 history.back() 返回上一页 -->
-        <button type="button" class="btn btn-white" onclick="javascript:history.back()">取消</button>
+        <!-- 🔥 修复：改为普通按钮，绑定异步提交 -->
+        <button type="button" class="btn btn-primary" onclick="submitForm()">保存</button>
+        <button type="button" class="btn btn-white" onclick="$.modal.close()">取消</button>
       </div>
     </div>
   </form>
@@ -90,17 +91,19 @@
 
 <script>
   $(function() {
-    // 初始化日期选择器
     $('.input-group.date').datetimepicker({
       format: 'yyyy-mm-dd',
       minView: 2,
       language: 'zh-CN',
       autoclose: true
     });
-
-    // 表单验证
     $("#instrumentForm").validate({});
   });
+
+  // 🔥 修复：若依标准异步提交（自动提示+关闭弹窗+刷新）
+  function submitForm() {
+    $.operate.save("/system/instrument/add", $("#instrumentForm").serialize());
+  }
 </script>
 </body>
 </html>

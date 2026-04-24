@@ -6,13 +6,11 @@
 </head>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
-  <form class="form-horizontal m-t" id="borrowForm" th:action="@{/system/borrow/add}" method="post">
+  <form class="form-horizontal m-t" id="borrowForm">
 
-    <!-- ===================== 自动填充仪器ID（只读，不可修改） ===================== -->
     <div class="form-group">
       <label class="col-sm-2 control-label">仪器ID：</label>
       <div class="col-sm-10">
-        <!-- 自动接收后端传递的 instrumentId，只读模式，保留必填校验 -->
         <input name="instrumentId"
                class="form-control"
                type="text"
@@ -27,7 +25,8 @@
       <label class="col-sm-2 control-label">计划归还时间：</label>
       <div class="col-sm-10">
         <div class="input-group date" id="planReturnTimePicker">
-          <input name="planReturnTime" class="form-control" type="text" required readonly>
+          <!-- 🔥 修复：添加id + 保留必填，强化必选约束 -->
+          <input id="planReturnTime" name="planReturnTime" class="form-control" type="text" required readonly>
           <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
         </div>
       </div>
@@ -42,8 +41,8 @@
 
     <div class="form-group">
       <div class="col-sm-4 col-sm-offset-2">
-        <button type="submit" class="btn btn-primary">提交申请</button>
-        <button type="button" class="btn btn-white" onclick="javascript:history.back()">取消</button>
+        <button type="button" class="btn btn-primary" onclick="submitForm()">提交申请</button>
+        <button type="button" class="btn btn-white" onclick="$.modal.close()">取消</button>
       </div>
     </div>
   </form>
@@ -65,6 +64,15 @@
     });
     $("#borrowForm").validate({});
   });
+
+  function submitForm() {
+    var planReturnTime = $("#planReturnTime").val();
+    if(!planReturnTime){
+      $.modal.msgWarning("请选择计划归还时间！");
+      return false;
+    }
+    $.operate.save("/system/borrow/add", $("#borrowForm").serialize());
+  }
 </script>
 </body>
 </html>

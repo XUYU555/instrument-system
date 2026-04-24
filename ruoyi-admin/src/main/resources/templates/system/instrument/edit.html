@@ -6,28 +6,27 @@
 </head>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
-    <form class="form-horizontal m-t" id="instrumentForm" th:action="@{/system/instrument/edit}" method="post">
-        <input name="instrumentId" th:field="${instrument.instrumentId}" type="hidden">
+    <!-- 🔥 修复：移除同步提交属性 th:action、method -->
+    <form class="form-horizontal m-t" id="instrumentForm">
+        <input name="instrumentId" th:value="${instrument.instrumentId}" type="hidden">
 
         <div class="form-group">
             <label class="col-sm-2 control-label">仪器名称：</label>
             <div class="col-sm-10">
-                <input name="instrumentName" th:field="${instrument.instrumentName}" class="form-control" type="text" required>
+                <input name="instrumentName" th:value="${instrument.instrumentName}" class="form-control" type="text" required>
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-2 control-label">仪器编号：</label>
             <div class="col-sm-10">
-                <input name="instrumentCode" th:field="${instrument.instrumentCode}" class="form-control" type="text" required>
+                <input name="instrumentCode" th:value="${instrument.instrumentCode}" class="form-control" type="text" required>
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-2 control-label">所属院系：</label>
             <div class="col-sm-10">
-                <!-- 【终极方案】直接用 Thymeleaf 渲染下拉框并回显 -->
                 <select name="deptId" class="form-control" required>
                     <option value="">请选择所属院系</option>
-                    <!-- 遍历部门列表 -->
                     <option th:each="dept : ${deptList}"
                             th:value="${dept.deptId}"
                             th:text="${dept.deptName}"
@@ -50,20 +49,19 @@
         <div class="form-group">
             <label class="col-sm-2 control-label">规格型号：</label>
             <div class="col-sm-10">
-                <input name="specs" th:field="${instrument.specs}" class="form-control" type="text" placeholder="请输入规格型号">
+                <input name="specs" th:value="${instrument.specs}" class="form-control" type="text" placeholder="请输入规格型号">
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-2 control-label">生产厂家：</label>
             <div class="col-sm-10">
-                <input name="manufacturer" th:field="${instrument.manufacturer}" class="form-control" type="text" placeholder="请输入生产厂家">
+                <input name="manufacturer" th:value="${instrument.manufacturer}" class="form-control" type="text" placeholder="请输入生产厂家">
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-2 control-label">采购时间：</label>
             <div class="col-sm-10">
-                <div class="input-group date">
-                    <!-- 【修复】直接用 Thymeleaf 格式化日期 -->
+                <div class="input-group.date">
                     <input name="purchaseTime" class="form-control" type="text"
                            th:value="${instrument.purchaseTime != null ? #dates.format(instrument.purchaseTime, 'yyyy-MM-dd') : ''}" readonly>
                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
@@ -73,18 +71,19 @@
         <div class="form-group">
             <label class="col-sm-2 control-label">存放位置：</label>
             <div class="col-sm-10">
-                <input name="location" th:field="${instrument.location}" class="form-control" type="text" placeholder="请输入存放位置">
+                <input name="location" th:value="${instrument.location}" class="form-control" type="text" placeholder="请输入存放位置">
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-2 control-label">备注：</label>
             <div class="col-sm-10">
-                <textarea name="remark" th:field="${instrument.remark}" class="form-control" rows="3" placeholder="请输入备注信息"></textarea>
+                <textarea name="remark" th:value="${instrument.remark}" class="form-control" rows="3" placeholder="请输入备注信息"></textarea>
             </div>
         </div>
         <div class="form-group">
             <div class="col-sm-4 col-sm-offset-2">
-                <button type="submit" class="btn btn-primary">保存修改</button>
+                <!-- 🔥 修复：改为普通按钮，绑定异步提交 -->
+                <button type="button" class="btn btn-primary" onclick="submitEdit()">保存修改</button>
                 <button type="button" class="btn btn-white" onclick="$.modal.close()">取消</button>
             </div>
         </div>
@@ -96,17 +95,19 @@
 
 <script>
     $(function() {
-        // 1. 初始化日期选择器
         $('.input-group.date').datetimepicker({
             format: 'yyyy-mm-dd',
             minView: 2,
             language: 'zh-CN',
             autoclose: true
         });
-
-        // 2. 表单验证（不需要等部门加载了，因为部门已经在服务端渲染好了）
         $("#instrumentForm").validate({});
     });
+
+    // 🔥 修复：若依标准异步提交
+    function submitEdit() {
+        $.operate.save("/system/instrument/edit", $("#instrumentForm").serialize());
+    }
 </script>
 </body>
 </html>
