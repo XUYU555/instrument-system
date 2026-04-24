@@ -166,4 +166,8 @@
         where instrument_id = #{instrumentId}
           and borrow_time >= #{monthStart}
     </select>
+
+    <select id="verifyBorrowUser" resultType="java.lang.Integer">
+        select count(*) from sys_instrument_borrow where borrow_id=#{borrowId} and user_id=#{userId} and status=#{status}
+    </select>
 </mapper>

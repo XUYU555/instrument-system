@@ -87,4 +87,6 @@ public interface SysInstrumentBorrowMapper{
     Integer countInstrumentMonthUse(@Param("instrumentId") Long instrumentId, @Param("monthStart") Date monthStart);
 
     SysInstrumentBorrow instrumentBorrowed(Long instrumentId);
+
+    Integer verifyBorrowUser(@Param(value = "userId") Long loginUserId, @Param(value = "borrowId") Long borrowId, @Param(value = "status") Integer status);
 }

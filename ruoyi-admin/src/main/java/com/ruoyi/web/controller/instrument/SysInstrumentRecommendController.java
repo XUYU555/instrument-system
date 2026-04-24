@@ -4,6 +4,7 @@ import com.cui.domain.vo.InstrumentRecommendVO;
 import com.cui.service.ISysInstrumentRecommendService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -31,6 +32,7 @@ public class SysInstrumentRecommendController extends BaseController {
     /**
      * 推荐页面
      */
+    @RequiresPermissions("instrument:recommend:view")
     @GetMapping()
     public String recommendPage(ModelMap mmap) {
         // 获取当前登录用户ID（若依框架获取）
@@ -46,6 +48,7 @@ public class SysInstrumentRecommendController extends BaseController {
      */
     @GetMapping("/refresh")
     @ResponseBody
+    @RequiresPermissions("instrument:recommend:refresh")
     public AjaxResult refreshRecommend(@RequestParam(defaultValue = "5") Integer count) {
         Long userId = getUserId();
         List<InstrumentRecommendVO> list = instrumentRecommendService.recommend(userId, count);

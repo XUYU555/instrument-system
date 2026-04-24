@@ -4,6 +4,7 @@ import com.cui.domain.vo.InstrumentStatVO;
 import com.cui.service.ISysInstrumentStatService;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -32,6 +33,7 @@ public class SysInstrumentStatController extends BaseController {
      * 统计可视化页面
      */
     @GetMapping()
+    @RequiresPermissions("instrument:state:view")
     public String statPage(ModelMap mmap) {
         // 仪表盘核心指标
         Map<String, Integer> dashboard = instrumentStatService.statDashboard();
@@ -44,6 +46,7 @@ public class SysInstrumentStatController extends BaseController {
      */
     @GetMapping("/byDept")
     @ResponseBody
+    @RequiresPermissions("instrument:state:view")
     public AjaxResult statByDept() {
         List<InstrumentStatVO> list = instrumentStatService.statByDept();
         return AjaxResult.success(list);
@@ -54,6 +57,7 @@ public class SysInstrumentStatController extends BaseController {
      */
     @GetMapping("/byMonth")
     @ResponseBody
+    @RequiresPermissions("instrument:state:view")
     public AjaxResult statByMonth(Integer year) {
         List<InstrumentStatVO> list = instrumentStatService.statByMonth(year);
         return AjaxResult.success(list);
@@ -64,6 +68,7 @@ public class SysInstrumentStatController extends BaseController {
      */
     @GetMapping("/byType")
     @ResponseBody
+    @RequiresPermissions("instrument:state:view")
     public AjaxResult statByType() {
         List<InstrumentStatVO> list = instrumentStatService.statByType();
         return AjaxResult.success(list);

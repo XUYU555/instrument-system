@@ -3,8 +3,10 @@ package com.cui.service.impl;
 import com.cui.domain.SysInstrumentBorrow;
 import com.cui.mapper.SysInstrumentBorrowMapper;
 import com.cui.service.ISysInstrumentBorrowService;
+import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.ShiroUtils;
+import com.ruoyi.system.mapper.SysRoleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,9 @@ public class SysInstrumentBorrowServiceImpl implements ISysInstrumentBorrowServi
 
     @Autowired
     private SysInstrumentBorrowMapper borrowMapper;
+
+    @Autowired
+    private SysRoleMapper roleMapper;
 
     @Override
     public List<SysInstrumentBorrow> selectBorrowList(SysInstrumentBorrow borrow) {
@@ -64,6 +69,21 @@ public class SysInstrumentBorrowServiceImpl implements ISysInstrumentBorrowServi
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int auditBorrow(SysInstrumentBorrow borrow) {
+        Long userId = ShiroUtils.getUserId();
+        List<SysRole> sysRoles = roleMapper.selectRolesByUserId(userId);
+        boolean authority = false;
+        for (SysRole sysRole : sysRoles) {
+            if(sysRole.isAdmin()) {
+                authority = true;
+                break;
+            }
+        }
+        if (!authority) {
+            return 0;
+        }
+        if (borrowMapper.verifyBorrowUser(userId, borrow.getBorrowId(), 0) == 0) {
+            return 0;
+        }
         borrow.setAuditUserId(ShiroUtils.getUserId());
         borrow.setAuditTime(DateUtils.getNowDate());
         borrow.setUpdateBy(ShiroUtils.getLoginName());
@@ -77,6 +97,10 @@ public class SysInstrumentBorrowServiceImpl implements ISysInstrumentBorrowServi
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int returnBorrow(Long borrowId) {
+        Long loginUserId = ShiroUtils.getUserId();
+        if (borrowMapper.verifyBorrowUser(loginUserId, borrowId, 1) == 0) {
+            return 0;
+        }
         SysInstrumentBorrow borrow = new SysInstrumentBorrow();
         borrow.setBorrowId(borrowId);
         borrow.setStatus("2"); // 已归还

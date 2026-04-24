@@ -95,7 +95,7 @@ public class SysInstrumentBorrowController extends BaseController {
     @PostMapping("/audit")
     @ResponseBody
     public AjaxResult auditSave(SysInstrumentBorrow borrow) {
-        return toAjax(borrowService.auditBorrow(borrow));
+        return borrowService.auditBorrow(borrow) == 1? success():error("无权限操作");
     }
 
     @RequiresPermissions("system:borrow:return")
@@ -103,6 +103,6 @@ public class SysInstrumentBorrowController extends BaseController {
     @PostMapping("/return")
     @ResponseBody
     public AjaxResult returnBorrow(Long borrowId) {
-        return toAjax(borrowService.returnBorrow(borrowId));
+        return borrowService.returnBorrow(borrowId) == 1? success():error("请输入正确参数");
     }
 }
