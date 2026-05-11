@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.ruoyi</groupId>
-        <artifactId>ruoyi</artifactId>
+        <groupId>com.cui</groupId>
+        <artifactId>instrument</artifactId>
         <version>4.8.2</version>
     </parent>
 
@@ -15,8 +15,8 @@
     <dependencies>
         <!-- 通用工具-->
         <dependency>
-            <groupId>com.ruoyi</groupId>
-            <artifactId>ruoyi-common</artifactId>
+            <groupId>com.cui</groupId>
+            <artifactId>instrument-common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -28,8 +28,8 @@
             <artifactId>thymeleaf</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.ruoyi</groupId>
-            <artifactId>ruoyi-system</artifactId>
+            <groupId>com.cui</groupId>
+            <artifactId>instrument-system</artifactId>
         </dependency>
     </dependencies>
 
